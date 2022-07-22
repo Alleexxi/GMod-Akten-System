@@ -14,8 +14,8 @@ sql.Query( "CREATE TABLE IF NOT EXISTS Akten_data_sith ( SteamID TEXT,JobId INTE
 Alleexxii.Akten.JediOrSith = {
     -- Musst halt hier noch die Team IDs angeben usw.
     -- [Team] = {NameDesMySqlTables, DürfenSieEsBenutzen}
-
-    [TEAM_JEDI] = {"Akten_data_jedi",false},
+    -- Zum beispiel:
+    [TEAM_JEDI] = {"Akten_data_jedi",true},
     
     [TEAM_SITH] = {"Akten_data_sith",false},
 }
