@@ -25,7 +25,6 @@ function GetJediOrSith(ply)
 end
 
 function SendAkten(ply,target)
-    print(target)
     local JediOrSith = GetJediOrSith(ply)
     if not JediOrSith then return end
     if not JediOrSith[2] then return end
