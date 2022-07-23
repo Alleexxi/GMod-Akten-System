@@ -13,20 +13,28 @@ if not file.IsDir("akten", "DATA") then
     file.CreateDir("akten")
 end
 
-
-hook.Add("DarkRPFinishedLoading", "darkrp_finished_loading_", function()
+hook.Add("DarkRPFinishedLoading", "darkrp_finished_loading_funk_addon", function()
     Alleexxii.Akten.JediOrSith = {
-        [TEAM_JEDI] = {"Akten_data_jedi",true},
+	
+        [TEAM_JEDI] = "Akten_data_jedi" .. os.date('%Y') .. "-" .. (os.date('%m')-1+1), -- Man muss nicht verstehen was ich hier mache.
         
-        [TEAM_SITH] = {"Akten_data_sith",true},
+        [TEAM_SITH] = "Akten_data_sith" .. os.date('%Y') .. "-" .. (os.date('%m')-1+1), -- Monatliche Akten man kann auch %W anstatt %b das es wochentlich ist
     }
-end)
 
-for i,v in pairs(Alleexxii.Akten.JediOrSith) do
-    if not file.Exists("akten/"..v[1]..".txt", "DATA") then
-        file.Write("akten/"..v[1]..".txt",util.TableToJSON({}))
+    for i,v in pairs(Alleexxii.Akten.JediOrSith) do
+        if not file.Exists("akten/"..v..".txt", "DATA") then
+            file.Write("akten/"..v..".txt",util.TableToJSON({}))
+        end
     end
-end
+
+    if file.Exists("akten/".."Akten_data_jedi" .. os.date('%Y') .. "-" .. (os.date('%m')-1) .. ".txt", "DATA") then
+        file.Delete("akten/".."Akten_data_jedi" .. os.date('%Y') .. "-" .. (os.date('%m')-1) .. ".txt", "DATA")
+    end
+
+    if file.Exists("akten/".."Akten_data_sith" .. os.date('%Y') .. "-" .. (os.date('%m')-1)  .. ".txt", "DATA") then
+        file.Delete("akten/".."Akten_data_sith" .. os.date('%Y') .. "-" .. (os.date('%m')-1)  .. ".txt")
+    end
+end)
 
 function GetJediOrSith(ply)
     return Alleexxii.Akten.JediOrSith[ply:getJobTable().team]
@@ -35,10 +43,9 @@ end
 function SendAkten(ply,target)
     local JediOrSith = GetJediOrSith(ply)
     if not JediOrSith then return end
-    if not JediOrSith[2] then return end
 
     if target then
-        local normaltable = util.JSONToTable(file.Read("akten/"..JediOrSith[1]..".txt"));
+        local normaltable = util.JSONToTable(file.Read("akten/"..JediOrSith..".txt"));
         local targettable = {};
         for i,v in pairs(normaltable) do
             if v.SteamID == target then
@@ -56,7 +63,7 @@ function SendAkten(ply,target)
         return
     end
 
-    local compress = util.Compress(file.Read("akten/"..JediOrSith[1]..".txt"))
+    local compress = util.Compress(file.Read("akten/"..JediOrSith..".txt"))
     local compressbytes = #compress
     net.Start("Alleexxii_Akten_Request")
         net.WriteUInt(compressbytes,16)
@@ -69,29 +76,38 @@ function Akten_Send(ply)
     net.Send(ply)
 end
 
+local meta = FindMetaTable("Player")
+function meta:GetJobRankName()
+    return "-"
+end
 
 net.Receive("Alleexxii_Akten_Send",function(len,ply)
-    local Ent,Meister,Straftat,Minuten = net.ReadEntity(),net.ReadString(),net.ReadString(),net.ReadString()
-    if not IsValid(Ent) then return end
+    local Player,Meister,Straftat,Minuten = net.ReadEntity(),net.ReadString(),net.ReadString(),net.ReadString()
+    if not IsValid(Player) then return end
+    if not Player:IsPlayer() then return end
     if not Meister or not Straftat or not tonumber(Minuten) then return end
     local JediOrSith = GetJediOrSith(ply)
     if not JediOrSith then return end
-    if not JediOrSith[2] then return end
+    if ply.AktenCooldown > CurTime() then 
+        DarkRP.notify(ply,NOTIFY_ERROR,10,"Warte einen moment!") 
+        return 
+    end
+    ply.AktenCooldown = CurTime() + 10
 
     local Table = {
-        ["SteamID"] = Ent:SteamID(),
-        ["JobId"] = Ent:getJobTable().team,
-        ["Name"] = Ent:getDarkRPVar("rpname"),
-        ["Rang"] = Ent:GetJobRankName(),
+        ["SteamID"] = Player:SteamID(),
+        ["JobId"] = Player:getJobTable().team,
+        ["Name"] = Player:getDarkRPVar("rpname"),
+        ["Rang"] = Player:GetJobRankName(),
         ["Meister"] = Meister,
         ["Straftat"] = Straftat,
         ["Datum"] = os.date('%Y-%m-%d %H:%M:%S'),
         ["Haftzeit"] = Minuten,
     }
     
-    local Data = util.JSONToTable(file.Read("akten/"..JediOrSith[1]..".txt"))
+    local Data = util.JSONToTable(file.Read("akten/"..JediOrSith..".txt"))
     Data[#Data+1] = Table
-    file.Write("akten/"..JediOrSith[1]..".txt",util.TableToJSON(Data))
+    file.Write("akten/"..JediOrSith..".txt",util.TableToJSON(Data))
 end)
 
 hook.Add( "PlayerSay", "Akten_Commands", function( ply, text )
