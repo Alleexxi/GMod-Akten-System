@@ -14,7 +14,7 @@ if not file.IsDir("akten", "DATA") then
 end
 
 
-hook.Add("DarkRPFinishedLoading", "darkrp_finished_loading_funk_addon", function()
+hook.Add("DarkRPFinishedLoading", "darkrp_finished_loading_", function()
     Alleexxii.Akten.JediOrSith = {
         [TEAM_JEDI] = {"Akten_data_jedi",true},
         
