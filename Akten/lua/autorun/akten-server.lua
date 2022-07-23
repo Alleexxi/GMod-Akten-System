@@ -14,13 +14,13 @@ if not file.IsDir("akten", "DATA") then
 end
 
 
-TEAM_JEDI = 1
-TEAM_SITH = 0
-Alleexxii.Akten.JediOrSith = {
-    [TEAM_JEDI] = {"Akten_data_jedi",true},
-    
-    [TEAM_SITH] = {"Akten_data_sith",false},
-}
+hook.Add("DarkRPFinishedLoading", "darkrp_finished_loading_funk_addon", function()
+    Alleexxii.Akten.JediOrSith = {
+        [TEAM_JEDI] = {"Akten_data_jedi",true},
+        
+        [TEAM_SITH] = {"Akten_data_sith",true},
+    }
+end)
 
 for i,v in pairs(Alleexxii.Akten.JediOrSith) do
     if not file.Exists("akten/"..v[1]..".txt", "DATA") then
@@ -68,6 +68,7 @@ function Akten_Send(ply)
     net.Start("Alleexxii_Akten_Send")
     net.Send(ply)
 end
+
 
 net.Receive("Alleexxii_Akten_Send",function(len,ply)
     local Ent,Meister,Straftat,Minuten = net.ReadEntity(),net.ReadString(),net.ReadString(),net.ReadString()
