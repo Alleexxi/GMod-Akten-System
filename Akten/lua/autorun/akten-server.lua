@@ -15,7 +15,6 @@ end
 
 hook.Add("DarkRPFinishedLoading", "darkrp_finished_loading_funk_addon", function()
     Alleexxii.Akten.JediOrSith = {
-	
         [TEAM_JEDI] = "Akten_data_jedi" .. os.date('%Y') .. "-" .. (os.date('%m')-1+1), -- Man muss nicht verstehen was ich hier mache.
         
         [TEAM_SITH] = "Akten_data_sith" .. os.date('%Y') .. "-" .. (os.date('%m')-1+1), -- Monatliche Akten man kann auch %W anstatt %b das es wochentlich ist
@@ -59,7 +58,6 @@ function SendAkten(ply,target)
             net.WriteUInt(compressbytes,16)
             net.WriteData(compress,compressbytes)
         net.Send(ply)
-
         return
     end
 
@@ -74,11 +72,6 @@ end
 function Akten_Send(ply)
     net.Start("Alleexxii_Akten_Send")
     net.Send(ply)
-end
-
-local meta = FindMetaTable("Player")
-function meta:GetJobRankName()
-    return "-"
 end
 
 net.Receive("Alleexxii_Akten_Send",function(len,ply)
