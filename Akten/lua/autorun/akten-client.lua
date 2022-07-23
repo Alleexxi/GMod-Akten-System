@@ -156,6 +156,8 @@ function Alleexxii.Akten.OpenSendMenu()
         frame:Remove()
         if not state then return end
     end
+    frame:SetSize(frame:GetWide(), frame:GetTall() + Button:GetTall() * 2.5)
+    frame:SetPos(frame:GetX(), frame:GetY() - Button:GetTall() * 2.5)
 end
 
 Alleexxii.Akten.Send = function(Ent,Meister,Strafttat,haftzeit)
@@ -173,9 +175,10 @@ Alleexxii.Akten.OpenRequest = function()
 end
 
 net.Receive("Alleexxii_Akten_Request", function(len, ply)
-    local Akten = net.ReadTable();
+    local bytes = net.ReadUInt(16);
+    local Akten = net.ReadData(bytes);
     if Akten ~= nil then
-        Alleexxii.Akten.DrawList(Akten)
+        Alleexxii.Akten.DrawList(util.JSONToTable(util.Decompress(Akten)))
     end
     return
 end)
