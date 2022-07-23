@@ -69,11 +69,6 @@ function Akten_Send(ply)
     net.Send(ply)
 end
 
-local meta = FindMetaTable("Player")
-function meta:GetJobRankName()
-    return "-"
-end
-
 net.Receive("Alleexxii_Akten_Send",function(len,ply)
     local Ent,Meister,Straftat,Minuten = net.ReadEntity(),net.ReadString(),net.ReadString(),net.ReadString()
     if not IsValid(Ent) then return end
